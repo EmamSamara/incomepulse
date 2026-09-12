@@ -31,6 +31,8 @@ class DatabaseService {
 
   Future<List<IncomeEntry>> incomes() async => (await (await database).query('transactions', where: 'type = ?', whereArgs: ['income'], orderBy: 'date DESC')).map(IncomeEntry.fromMap).toList();
   Future<int> addIncome(IncomeEntry income) async => (await database).insert('transactions', income.toMap()..remove('id'));
+  Future<void> updateIncome(IncomeEntry income) async => (await database).update('transactions', income.toMap()..remove('id'), where: 'id = ?', whereArgs: [income.id]);
+  Future<void> deleteIncome(int id) async => (await database).delete('transactions', where: 'id = ?', whereArgs: [id]);
   Future<double> buffer() async { final rows = await (await database).query('safety_buffer', where: 'id = ?', whereArgs: [1]); return (rows.first['balance'] as num).toDouble(); }
   Future<void> setBuffer(double value) async => (await database).update('safety_buffer', {'balance': value}, where: 'id = ?', whereArgs: [1]);
   Future<String?> preference(String key) async { final rows = await (await database).query('preferences', where: 'key = ?', whereArgs: [key]); return rows.isEmpty ? null : rows.first['value'] as String; }
