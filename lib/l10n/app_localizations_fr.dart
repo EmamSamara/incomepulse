@@ -50,6 +50,9 @@ class AppLocalizationsFr extends AppLocalizations {
       'Vous êtes légèrement en retard. Il reste du temps ce mois-ci.';
 
   @override
+  String get welcome => 'Bienvenue sur Steady';
+
+  @override
   String get addExpensesTarget =>
       'Ajoutez des dépenses fixes pour définir votre objectif mensuel.';
 
@@ -154,7 +157,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get continueButton => 'Continuer';
 
   @override
-  String get welcome => 'Bienvenue sur Steady';
+  String get skip => 'Skip for now';
 
   @override
   String get chooseLanguageCurrency =>

@@ -111,7 +111,7 @@ abstract class AppLocalizations {
   /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
-  /// **'Steady'**
+  /// **'IncomePulse'**
   String get appTitle;
 
   /// No description provided for @home.
@@ -185,6 +185,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You are a little behind pace. There is still time this month.'**
   String get behind;
+
+  /// No description provided for @welcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to IncomePulse'**
+  String get welcome;
 
   /// No description provided for @addExpensesTarget.
   ///
@@ -384,11 +390,11 @@ abstract class AppLocalizations {
   /// **'Continue'**
   String get continueButton;
 
-  /// No description provided for @welcome.
+  /// No description provided for @skip.
   ///
   /// In en, this message translates to:
-  /// **'Welcome to Steady'**
-  String get welcome;
+  /// **'Skip for now'**
+  String get skip;
 
   /// No description provided for @chooseLanguageCurrency.
   ///

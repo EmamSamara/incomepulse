@@ -10,7 +10,7 @@ class AppLocalizationsAr extends AppLocalizations {
   AppLocalizationsAr([String locale = 'ar']) : super(locale);
 
   @override
-  String get appTitle => 'ستيدي';
+  String get appTitle => 'IncomePulse';
 
   @override
   String get home => 'الرئيسية';
@@ -48,6 +48,9 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get behind =>
       'أنت متأخر قليلاً عن الوتيرة. لا يزال هناك وقت هذا الشهر.';
+
+  @override
+  String get welcome => 'مرحباً بك في IncomePulse';
 
   @override
   String get addExpensesTarget => 'أضف المصاريف الثابتة لتحديد هدفك الشهري.';
@@ -152,7 +155,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get continueButton => 'متابعة';
 
   @override
-  String get welcome => 'مرحباً بك في ستيدي';
+  String get skip => 'تخطي الآن';
 
   @override
   String get chooseLanguageCurrency => 'اختر لغتك وعملتك.';

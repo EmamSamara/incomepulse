@@ -49,6 +49,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get behind => 'Biraz geridesiniz. Bu ay için hâlâ zaman var.';
 
   @override
+  String get welcome => 'Steady\'ye hoş geldiniz';
+
+  @override
   String get addExpensesTarget =>
       'Aylık hedefinizi belirlemek için sabit gider ekleyin.';
 
@@ -153,7 +156,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get continueButton => 'Devam';
 
   @override
-  String get welcome => 'Steady\'ye hoş geldiniz';
+  String get skip => 'Skip for now';
 
   @override
   String get chooseLanguageCurrency => 'Dilinizi ve para biriminizi seçin.';

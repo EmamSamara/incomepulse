@@ -1,5 +1,5 @@
-name: my_first_app
-description: "A new Flutter project."
+name: incomepulse
+description: "IncomePulse offline budget tracker for irregular income."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -61,6 +61,8 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter:
   generate: true
+  assets:
+    - app_icon.png.jpg
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

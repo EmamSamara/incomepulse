@@ -4,21 +4,13 @@ An offline-first Flutter app for tracking variable income, recurring monthly exp
 
 ## Structure
 
-- `lib/models`: SQLite-backed domain models.
+An offline-first Flutter app for tracking variable income, recurring monthly expenses, progress toward a minimum target, and a virtual safety buffer.
 - `lib/services`: Local database access.
 - `lib/providers`: App-wide state powered by Provider.
 - `lib/screens`: Onboarding, dashboard, history, buffer, and settings screens.
-- `lib/widgets`: Reusable presentation pieces.
-
-## Run
-
-Run `flutter pub get`, then `flutter run` with an Android emulator or device. All data stays on the device; no account or network connection is required.
-
-A new Flutter project.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
 
 A few resources to get you started if this is your first Flutter project:
 

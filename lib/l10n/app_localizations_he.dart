@@ -49,6 +49,9 @@ class AppLocalizationsHe extends AppLocalizations {
   String get behind => 'אתם מעט מאחור. עדיין נשאר זמן החודש.';
 
   @override
+  String get welcome => 'ברוכים הבאים ל-Steady';
+
+  @override
   String get addExpensesTarget => 'הוסיפו הוצאות קבועות כדי להגדיר יעד חודשי.';
 
   @override
@@ -150,7 +153,7 @@ class AppLocalizationsHe extends AppLocalizations {
   String get continueButton => 'המשך';
 
   @override
-  String get welcome => 'ברוכים הבאים ל-Steady';
+  String get skip => 'Skip for now';
 
   @override
   String get chooseLanguageCurrency => 'בחרו שפה ומטבע.';

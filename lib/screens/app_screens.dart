@@ -52,6 +52,61 @@ String formatMoney(BuildContext context, double value) {
   ).format(value);
 }
 
+class EntranceAnimation extends StatefulWidget {
+  const EntranceAnimation({super.key, required this.child});
+  final Widget child;
+
+  @override
+  State<EntranceAnimation> createState() => _EntranceAnimationState();
+}
+
+class _EntranceAnimationState extends State<EntranceAnimation> {
+  bool visible = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) setState(() => visible = true);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final disabled = MediaQuery.of(context).disableAnimations;
+    final duration = disabled ? Duration.zero : const Duration(milliseconds: 240);
+    return AnimatedSlide(
+      offset: disabled || visible ? Offset.zero : const Offset(0, .04),
+      duration: duration,
+      curve: Curves.easeOutCubic,
+      child: AnimatedOpacity(
+        opacity: disabled || visible ? 1 : 0,
+        duration: duration,
+        child: widget.child,
+      ),
+    );
+  }
+}
+
+class AnimatedAmount extends StatelessWidget {
+  const AnimatedAmount({super.key, required this.value, required this.builder, this.style});
+  final double value;
+  final String Function(double) builder;
+  final TextStyle? style;
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(end: value),
+      duration: MediaQuery.of(context).disableAnimations
+          ? Duration.zero
+          : const Duration(milliseconds: 260),
+      curve: Curves.easeOut,
+      builder: (_, current, _) => Text(builder(current), style: style),
+    );
+  }
+}
+
 class PreferencesSetupScreen extends StatefulWidget {
   const PreferencesSetupScreen({super.key});
   @override
@@ -179,9 +234,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 decoration: InputDecoration(
                   labelText: text(context).firstExpense,
                 ),
-                validator: (value) => value == null || value.trim().isEmpty
-                    ? text(context).requiredName
-                    : null,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return amount.text.trim().isEmpty
+                        ? null
+                        : text(context).requiredName;
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 12),
               TextFormField(
@@ -193,25 +253,36 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   labelText: text(context).monthlyAmount,
                   prefixText: '${state.currencySymbol} ',
                 ),
-                validator: (value) =>
-                    double.tryParse(value ?? '') == null ||
-                        double.parse(value!) <= 0
-                    ? text(context).invalidAmount
-                    : null,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return name.text.trim().isEmpty
+                        ? null
+                        : text(context).invalidAmount;
+                  }
+                  final parsed = double.tryParse(value);
+                  return parsed == null || parsed <= 0
+                      ? text(context).invalidAmount
+                      : null;
+                },
               ),
               const SizedBox(height: 24),
               FilledButton(
                 onPressed: () async {
-                  if (!form.currentState!.validate()) return;
-                  await state.addExpense(
-                    FixedExpense(
-                      name: name.text.trim(),
-                      amount: double.parse(amount.text),
-                    ),
-                  );
+                  final hasName = name.text.trim().isNotEmpty;
+                  final hasAmount = amount.text.trim().isNotEmpty;
+                  if (!hasName && !hasAmount) {
+                    await state.finishOnboarding();
+                    return;
+                  }
+                  if (!form.currentState!.validate() || !hasName || !hasAmount) return;
+                  await state.addExpense(FixedExpense(name: name.text.trim(), amount: double.parse(amount.text)));
                   await state.finishOnboarding();
                 },
                 child: Text(text(context).continueButton),
+              ),
+              TextButton(
+                onPressed: state.finishOnboarding,
+                child: Text(text(context).skip),
               ),
             ],
           ),
@@ -245,7 +316,14 @@ class _AppShellState extends State<AppShell> {
     ];
     return Scaffold(
       appBar: AppBar(title: Text(labels[index])),
-      body: pages[index],
+      body: AnimatedSwitcher(
+        duration: MediaQuery.of(context).disableAnimations
+            ? Duration.zero
+            : const Duration(milliseconds: 220),
+        switchInCurve: Curves.easeOutCubic,
+        switchOutCurve: Curves.easeIn,
+        child: KeyedSubtree(key: ValueKey(index), child: pages[index]),
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: index,
         onDestinationSelected: (value) => setState(() => index = value),
@@ -294,7 +372,8 @@ class HomeScreen extends StatelessWidget {
     final progress = target == 0 ? 0.0 : (total / target).clamp(0.0, 1.0);
     final days = DateUtils.getDaysInMonth(now.year, now.month);
     final ahead = target == 0 || total / target >= now.day / days;
-    return ListView(
+    return EntranceAnimation(
+      child: ListView(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 100),
       children: [
         Text(
@@ -313,23 +392,33 @@ class HomeScreen extends StatelessWidget {
                   style: Theme.of(context).textTheme.labelLarge,
                 ),
                 const SizedBox(height: 6),
-                Text(
-                  formatMoney(context, target),
+                AnimatedAmount(
+                  value: target,
+                  builder: (value) => formatMoney(context, value),
                   style: Theme.of(context).textTheme.headlineMedium
                       ?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 18),
-                LinearProgressIndicator(
-                  value: progress,
-                  minHeight: 12,
-                  borderRadius: BorderRadius.circular(8),
+                TweenAnimationBuilder<double>(
+                  tween: Tween(end: progress),
+                  duration: MediaQuery.of(context).disableAnimations
+                      ? Duration.zero
+                      : const Duration(milliseconds: 300),
+                  curve: Curves.easeOut,
+                  builder: (_, value, _) => LinearProgressIndicator(
+                    value: value,
+                    minHeight: 12,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      '${formatMoney(context, total)} ${text(context).earnedThisMonth}',
+                    AnimatedAmount(
+                      value: total,
+                      builder: (value) =>
+                          '${formatMoney(context, value)} ${text(context).earnedThisMonth}',
                     ),
                     Text('${(progress * 100).round()}%'),
                   ],
@@ -373,8 +462,11 @@ class HomeScreen extends StatelessWidget {
             icon: Icons.receipt_long_outlined,
             text: text(context).noIncome,
           ),
-        ...state.incomeList.take(8).map((entry) => incomeTile(context, entry)),
+        ...state.incomeList.take(8).map(
+          (entry) => EntranceAnimation(child: incomeTile(context, entry)),
+        ),
       ],
+      ),
     );
   }
 }
@@ -672,7 +764,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
         EmptyState(icon: Icons.bar_chart, text: text(context).noHistory),
       );
     }
-    content.addAll(entries.map((entry) => incomeTile(context, entry)));
+    content.addAll(
+      entries.map((entry) => EntranceAnimation(child: incomeTile(context, entry))),
+    );
     return ListView(padding: const EdgeInsets.all(20), children: content);
   }
 
@@ -738,8 +832,9 @@ class _BufferScreenState extends State<BufferScreen> {
                   text(context).buffer,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
-                Text(
-                  formatMoney(context, state.buffer),
+                AnimatedAmount(
+                  value: state.buffer,
+                  builder: (value) => formatMoney(context, value),
                   style: Theme.of(context).textTheme.displaySmall
                       ?.copyWith(fontWeight: FontWeight.bold),
                 ),
@@ -861,7 +956,8 @@ class SettingsScreen extends StatelessWidget {
         ),
         if (state.expensesList.isEmpty) Text(text(context).noExpenses),
         ...state.expensesList.map(
-          (expense) => ListTile(
+          (expense) => EntranceAnimation(
+            child: ListTile(
             contentPadding: EdgeInsets.zero,
             title: Text(expense.name),
             subtitle: Text(expense.category),
@@ -879,6 +975,7 @@ class SettingsScreen extends StatelessWidget {
                   icon: const Icon(Icons.delete_outline),
                 ),
               ],
+            ),
             ),
           ),
         ),

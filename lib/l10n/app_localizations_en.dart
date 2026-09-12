@@ -10,7 +10,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'Steady';
+  String get appTitle => 'IncomePulse';
 
   @override
   String get home => 'Home';
@@ -48,6 +48,9 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get behind =>
       'You are a little behind pace. There is still time this month.';
+
+  @override
+  String get welcome => 'Welcome to IncomePulse';
 
   @override
   String get addExpensesTarget =>
@@ -153,7 +156,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get continueButton => 'Continue';
 
   @override
-  String get welcome => 'Welcome to Steady';
+  String get skip => 'Skip for now';
 
   @override
   String get chooseLanguageCurrency => 'Choose your language and currency.';
