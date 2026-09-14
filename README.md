@@ -21,3 +21,35 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+## UI Preview
+
+The following screenshots were captured from the running Flutter application using populated, realistic financial states.
+
+### 1. Dashboard with recorded income
+
+![IncomePulse dashboard with recorded income](docs/screenshots/dashboard-with-income.webp)
+
+---
+
+### 2. Income history and six-month chart
+
+![IncomePulse income history and chart](docs/screenshots/income-history-chart.webp)
+
+---
+
+### 3. Funded safety buffer
+
+![IncomePulse safety buffer with saved funds](docs/screenshots/safety-buffer-funded.webp)
+
+---
+
+### 4. Arabic settings and preferences
+
+![IncomePulse Arabic settings](docs/screenshots/settings-arabic.webp)
+
+---
+
+### 5. Dark mode settings
+
+![IncomePulse dark mode settings](docs/screenshots/settings-dark-mode.webp)

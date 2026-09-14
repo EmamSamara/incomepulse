@@ -1,17 +1,15 @@
-import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../models/models.dart';
+import 'database_path.dart';
 
 class DatabaseService {
   Database? _database;
 
   Future<Database> get database async {
     if (_database != null) return _database!;
-    final directory = await getApplicationDocumentsDirectory();
     _database = await openDatabase(
-      join(directory.path, 'irregular_income.db'),
+      await databaseFilePath(),
       version: 1,
       onCreate: (db, version) async {
         await db.execute('CREATE TABLE transactions (id INTEGER PRIMARY KEY AUTOINCREMENT, type TEXT NOT NULL, amount REAL NOT NULL, category TEXT NOT NULL, date TEXT NOT NULL, note TEXT)');
