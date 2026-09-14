@@ -28,55 +28,55 @@ The following screenshots were captured from the running Flutter application usi
 
 ### 1. Dashboard with recorded income
 
-![IncomePulse dashboard with recorded income](docs/screenshots/dashboard-with-income.webp)
+![IncomePulse dashboard with recorded income](docs/screenshots/phone/dashboard-with-income.webp)
 
 ---
 
 ### 2. Income history and six-month chart
 
-![IncomePulse income history and chart](docs/screenshots/income-history-chart.webp)
+![IncomePulse income history and chart](docs/screenshots/phone/income-history-chart.webp)
 
 ---
 
 ### 3. Funded safety buffer
 
-![IncomePulse safety buffer with saved funds](docs/screenshots/safety-buffer-funded.webp)
+![IncomePulse safety buffer with saved funds](docs/screenshots/phone/safety-buffer-funded.webp)
 
 ---
 
 ### 4. Arabic settings and preferences
 
-![IncomePulse Arabic settings](docs/screenshots/settings-arabic.webp)
+![IncomePulse Arabic settings](docs/screenshots/phone/settings-arabic.webp)
 
 ---
 
 ### 5. Dark mode settings
 
-![IncomePulse dark mode settings](docs/screenshots/settings-dark-mode.webp)
+![IncomePulse dark mode settings](docs/screenshots/phone/settings-dark-mode.webp)
 
 ---
 
 ### 6. Filled onboarding budget setup
 
-![IncomePulse filled onboarding budget setup](docs/screenshots/onboarding-budget-filled.webp)
+![IncomePulse filled onboarding budget setup](docs/screenshots/phone/onboarding-budget-filled.webp)
 
 ---
 
 ### 7. Populated dark dashboard overview
 
-![IncomePulse populated dark dashboard](docs/screenshots/dashboard-dark-populated.webp)
+![IncomePulse populated dark dashboard](docs/screenshots/phone/dashboard-dark-populated.webp)
 
 ---
 
 ### 8. Add income dialog
 
-![IncomePulse add income dialog](docs/screenshots/add-income-dialog.webp)
+![IncomePulse add income dialog](docs/screenshots/phone/add-income-dialog.webp)
 
 ---
 
 ### 9. Income dialog with project note
 
-![IncomePulse income dialog with note](docs/screenshots/income-dialog-with-note.webp)
+![IncomePulse income dialog with note](docs/screenshots/phone/income-dialog-with-note.webp)
 
 
 ## Tests
