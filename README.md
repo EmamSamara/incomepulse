@@ -53,3 +53,39 @@ The following screenshots were captured from the running Flutter application usi
 ### 5. Dark mode settings
 
 ![IncomePulse dark mode settings](docs/screenshots/settings-dark-mode.webp)
+
+---
+
+### 6. Filled onboarding budget setup
+
+![IncomePulse filled onboarding budget setup](docs/screenshots/onboarding-budget-filled.webp)
+
+---
+
+### 7. Populated dark dashboard overview
+
+![IncomePulse populated dark dashboard](docs/screenshots/dashboard-dark-populated.webp)
+
+---
+
+### 8. Add income dialog
+
+![IncomePulse add income dialog](docs/screenshots/add-income-dialog.webp)
+
+---
+
+### 9. Income dialog with project note
+
+![IncomePulse income dialog with note](docs/screenshots/income-dialog-with-note.webp)
+
+
+## Tests
+
+The project includes automated Flutter tests covering the test harness, fixed-expense serialization, income-entry serialization, and supported currency options.
+
+```text
+flutter test --reporter expanded
+00:00 +4: All tests passed!
+```
+
+Static analysis was also run with `flutter analyze --no-fatal-infos`. It reports eight informational style/deprecation notices in the existing splash screen and no fatal warnings.
