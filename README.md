@@ -11,6 +11,7 @@ An offline-first Flutter app for tracking variable income, recurring monthly exp
 
 ## Getting Started
 
+For contribution and verification instructions, see [CONTRIBUTING.md](docs/CONTRIBUTING.md).
 
 A few resources to get you started if this is your first Flutter project:
 
