@@ -90,3 +90,11 @@ flutter test --reporter expanded
 ```
 
 Static analysis was also run with `flutter analyze --no-fatal-infos`. It reports eight informational style/deprecation notices in the existing splash screen and no fatal warnings.
+
+## Improvements
+
+IncomePulse now includes a monthly budget alongside the existing fixed-expense target. The home screen shows the current budget progress and the remaining amount for the month, while Settings provides a quick editor for the budget value.
+
+The Settings screen also provides local data portability tools. **Copy backup** creates a JSON snapshot containing income entries, fixed expenses, categories, the safety buffer, and the monthly budget. **Restore backup** accepts that JSON snapshot from the clipboard. **Copy income CSV** exports the income history in a spreadsheet-friendly format.
+
+These features are designed for the offline-first workflow: no external account or cloud service is required, and the existing SQLite Web setup remains unchanged. The current Flutter test suite and release Web build were run after the changes.
