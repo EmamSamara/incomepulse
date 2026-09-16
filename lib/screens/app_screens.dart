@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -74,7 +75,9 @@ class _EntranceAnimationState extends State<EntranceAnimation> {
   @override
   Widget build(BuildContext context) {
     final disabled = MediaQuery.of(context).disableAnimations;
-    final duration = disabled ? Duration.zero : const Duration(milliseconds: 240);
+    final duration = disabled
+        ? Duration.zero
+        : const Duration(milliseconds: 240);
     return AnimatedSlide(
       offset: disabled || visible ? Offset.zero : const Offset(0, .04),
       duration: duration,
@@ -89,7 +92,12 @@ class _EntranceAnimationState extends State<EntranceAnimation> {
 }
 
 class AnimatedAmount extends StatelessWidget {
-  const AnimatedAmount({super.key, required this.value, required this.builder, this.style});
+  const AnimatedAmount({
+    super.key,
+    required this.value,
+    required this.builder,
+    this.style,
+  });
   final double value;
   final String Function(double) builder;
   final TextStyle? style;
@@ -274,8 +282,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     await state.finishOnboarding();
                     return;
                   }
-                  if (!form.currentState!.validate() || !hasName || !hasAmount) return;
-                  await state.addExpense(FixedExpense(name: name.text.trim(), amount: double.parse(amount.text)));
+                  if (!form.currentState!.validate() || !hasName || !hasAmount)
+                    return;
+                  await state.addExpense(
+                    FixedExpense(
+                      name: name.text.trim(),
+                      amount: double.parse(amount.text),
+                    ),
+                  );
                   await state.finishOnboarding();
                 },
                 child: Text(text(context).continueButton),
@@ -374,98 +388,135 @@ class HomeScreen extends StatelessWidget {
     final ahead = target == 0 || total / target >= now.day / days;
     return EntranceAnimation(
       child: ListView(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 100),
-      children: [
-        Text(
-          DateFormat.yMMMM(state.localeCode).format(now),
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-        const SizedBox(height: 12),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  text(context).monthlyMinimum,
-                  style: Theme.of(context).textTheme.labelLarge,
-                ),
-                const SizedBox(height: 6),
-                AnimatedAmount(
-                  value: target,
-                  builder: (value) => formatMoney(context, value),
-                  style: Theme.of(context).textTheme.headlineMedium
-                      ?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 18),
-                TweenAnimationBuilder<double>(
-                  tween: Tween(end: progress),
-                  duration: MediaQuery.of(context).disableAnimations
-                      ? Duration.zero
-                      : const Duration(milliseconds: 300),
-                  curve: Curves.easeOut,
-                  builder: (_, value, _) => LinearProgressIndicator(
-                    value: value,
-                    minHeight: 12,
-                    borderRadius: BorderRadius.circular(8),
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 100),
+        children: [
+          Text(
+            DateFormat.yMMMM(state.localeCode).format(now),
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 12),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    text(context).monthlyMinimum,
+                    style: Theme.of(context).textTheme.labelLarge,
                   ),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    AnimatedAmount(
-                      value: total,
-                      builder: (value) =>
-                          '${formatMoney(context, value)} ${text(context).earnedThisMonth}',
+                  const SizedBox(height: 6),
+                  AnimatedAmount(
+                    value: target,
+                    builder: (value) => formatMoney(context, value),
+                    style: Theme.of(context).textTheme.headlineMedium
+                        ?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 18),
+                  TweenAnimationBuilder<double>(
+                    tween: Tween(end: progress),
+                    duration: MediaQuery.of(context).disableAnimations
+                        ? Duration.zero
+                        : const Duration(milliseconds: 300),
+                    curve: Curves.easeOut,
+                    builder: (_, value, _) => LinearProgressIndicator(
+                      value: value,
+                      minHeight: 12,
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    Text('${(progress * 100).round()}%'),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      AnimatedAmount(
+                        value: total,
+                        builder: (value) =>
+                            '${formatMoney(context, value)} ${text(context).earnedThisMonth}',
+                      ),
+                      Text('${(progress * 100).round()}%'),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
+                    target == 0
+                        ? text(context).addExpensesTarget
+                        : ahead
+                        ? text(context).ahead
+                        : text(context).behind,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              _metric(context, text(context).daysLeft, '${days - now.day}'),
+              _metric(
+                context,
+                text(context).stillNeeded,
+                formatMoney(
+                  context,
+                  (target - total).clamp(0, double.infinity),
+                ),
+              ),
+              _metric(
+                context,
+                text(context).buffer,
+                formatMoney(context, state.buffer),
+              ),
+            ],
+          ),
+          if (state.monthlyBudget > 0) ...[
+            const SizedBox(height: 12),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Monthly budget',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        Text(
+                          formatMoney(context, state.budgetRemaining),
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    LinearProgressIndicator(value: state.budgetProgress),
+                    const SizedBox(height: 6),
+                    Text(
+                      '${formatMoney(context, total)} / ${formatMoney(context, state.monthlyBudget)}',
+                    ),
                   ],
                 ),
-                const SizedBox(height: 14),
-                Text(
-                  target == 0
-                      ? text(context).addExpensesTarget
-                      : ahead
-                      ? text(context).ahead
-                      : text(context).behind,
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            _metric(context, text(context).daysLeft, '${days - now.day}'),
-            _metric(
-              context,
-              text(context).stillNeeded,
-              formatMoney(context, (target - total).clamp(0, double.infinity)),
-            ),
-            _metric(
-              context,
-              text(context).buffer,
-              formatMoney(context, state.buffer),
+              ),
             ),
           ],
-        ),
-        const SizedBox(height: 22),
-        Text(
-          text(context).recentIncome,
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        const SizedBox(height: 8),
-        if (state.incomeList.isEmpty)
-          EmptyState(
-            icon: Icons.receipt_long_outlined,
-            text: text(context).noIncome,
+          const SizedBox(height: 22),
+          Text(
+            text(context).recentIncome,
+            style: Theme.of(context).textTheme.titleLarge,
           ),
-        ...state.incomeList.take(8).map(
-          (entry) => EntranceAnimation(child: incomeTile(context, entry)),
-        ),
-      ],
+          const SizedBox(height: 8),
+          if (state.incomeList.isEmpty)
+            EmptyState(
+              icon: Icons.receipt_long_outlined,
+              text: text(context).noIncome,
+            ),
+          ...state.incomeList
+              .take(8)
+              .map(
+                (entry) => EntranceAnimation(child: incomeTile(context, entry)),
+              ),
+        ],
       ),
     );
   }
@@ -765,7 +816,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
       );
     }
     content.addAll(
-      entries.map((entry) => EntranceAnimation(child: incomeTile(context, entry))),
+      entries.map(
+        (entry) => EntranceAnimation(child: incomeTile(context, entry)),
+      ),
     );
     return ListView(padding: const EdgeInsets.all(20), children: content);
   }
@@ -941,6 +994,59 @@ class SettingsScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 14),
+        Card(
+          child: ListTile(
+            leading: const Icon(Icons.account_balance_wallet_outlined),
+            title: const Text('Monthly budget'),
+            subtitle: Text(
+              state.monthlyBudget > 0
+                  ? formatMoney(context, state.monthlyBudget)
+                  : 'Not set',
+            ),
+            trailing: const Icon(Icons.edit_outlined),
+            onTap: () => showBudgetDialog(context),
+          ),
+        ),
+        Card(
+          child: Column(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.download_outlined),
+                title: const Text('Copy backup'),
+                onTap: () async {
+                  await Clipboard.setData(
+                    ClipboardData(text: state.exportBackup()),
+                  );
+                  if (context.mounted)
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Backup copied to clipboard'),
+                      ),
+                    );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.table_view_outlined),
+                title: const Text('Copy income CSV'),
+                onTap: () async {
+                  await Clipboard.setData(
+                    ClipboardData(text: state.exportCsv()),
+                  );
+                  if (context.mounted)
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('CSV copied to clipboard')),
+                    );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.restore_outlined),
+                title: const Text('Restore backup'),
+                onTap: () => showRestoreDialog(context),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 14),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -958,24 +1064,24 @@ class SettingsScreen extends StatelessWidget {
         ...state.expensesList.map(
           (expense) => EntranceAnimation(
             child: ListTile(
-            contentPadding: EdgeInsets.zero,
-            title: Text(expense.name),
-            subtitle: Text(expense.category),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(formatMoney(context, expense.amount)),
-                IconButton(
-                  onPressed: () =>
-                      showExpenseDialog(context, existing: expense),
-                  icon: const Icon(Icons.edit_outlined),
-                ),
-                IconButton(
-                  onPressed: () => state.deleteExpense(expense.id!),
-                  icon: const Icon(Icons.delete_outline),
-                ),
-              ],
-            ),
+              contentPadding: EdgeInsets.zero,
+              title: Text(expense.name),
+              subtitle: Text(expense.category),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(formatMoney(context, expense.amount)),
+                  IconButton(
+                    onPressed: () =>
+                        showExpenseDialog(context, existing: expense),
+                    icon: const Icon(Icons.edit_outlined),
+                  ),
+                  IconButton(
+                    onPressed: () => state.deleteExpense(expense.id!),
+                    icon: const Icon(Icons.delete_outline),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -1185,6 +1291,77 @@ Future<void> showCategoryDialog(BuildContext context) async {
             if (context.mounted) Navigator.pop(context);
           },
           child: Text(text(context).save),
+        ),
+      ],
+    ),
+  );
+}
+
+Future<void> showBudgetDialog(BuildContext context) async {
+  final state = context.read<AppState>();
+  final controller = TextEditingController(
+    text: state.monthlyBudget == 0
+        ? ''
+        : state.monthlyBudget.toStringAsFixed(2),
+  );
+  await showDialog(
+    context: context,
+    builder: (_) => AlertDialog(
+      title: const Text('Monthly budget'),
+      content: TextField(
+        controller: controller,
+        autofocus: true,
+        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        decoration: const InputDecoration(labelText: 'Amount'),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(text(context).cancel),
+        ),
+        FilledButton(
+          onPressed: () async {
+            final value = double.tryParse(controller.text) ?? 0;
+            await state.setMonthlyBudget(value);
+            if (context.mounted) Navigator.pop(context);
+          },
+          child: Text(text(context).save),
+        ),
+      ],
+    ),
+  );
+}
+
+Future<void> showRestoreDialog(BuildContext context) async {
+  final state = context.read<AppState>();
+  final controller = TextEditingController();
+  await showDialog(
+    context: context,
+    builder: (_) => AlertDialog(
+      title: const Text('Restore backup'),
+      content: TextField(
+        controller: controller,
+        maxLines: 6,
+        decoration: const InputDecoration(hintText: 'Paste backup JSON here'),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(text(context).cancel),
+        ),
+        FilledButton(
+          onPressed: () async {
+            final ok = await state.importBackup(controller.text);
+            if (context.mounted) {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(ok ? 'Backup restored' : 'Invalid backup'),
+                ),
+              );
+            }
+          },
+          child: const Text('Restore'),
         ),
       ],
     ),

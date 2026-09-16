@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -16,11 +18,82 @@ class AppState extends ChangeNotifier {
   String currencySymbol = '\$';
   bool preferencesComplete = false;
   double buffer = 0;
+  double monthlyBudget = 0;
   List<FixedExpense> expensesList = [];
   List<IncomeEntry> incomeList = [];
   List<String> categories = ['Freelance', 'Delivery', 'Online sales', 'Other'];
 
   double get target => expensesList.fold(0, (sum, item) => sum + item.amount);
+  double get budgetRemaining =>
+      (monthlyBudget - currentMonthTotal).clamp(0, double.infinity);
+  double get budgetProgress =>
+      monthlyBudget <= 0 ? 0 : (currentMonthTotal / monthlyBudget).clamp(0, 1);
+
+  Future<void> setMonthlyBudget(double value) async {
+    monthlyBudget = value.clamp(0, double.infinity);
+    await _prefs.setDouble('monthlyBudget', monthlyBudget);
+    notifyListeners();
+  }
+
+  String exportBackup() {
+    return jsonEncode({
+      'version': 1,
+      'monthlyBudget': monthlyBudget,
+      'buffer': buffer,
+      'categories': categories,
+      'expenses': expensesList.map((e) => e.toMap()).toList(),
+      'income': incomeList.map((e) => e.toMap()).toList(),
+    });
+  }
+
+  Future<bool> importBackup(String raw) async {
+    try {
+      final data = jsonDecode(raw) as Map<String, dynamic>;
+      final expenses = (data['expenses'] as List? ?? [])
+          .cast<Map>()
+          .map((e) => FixedExpense.fromMap(Map<String, Object?>.from(e)))
+          .toList();
+      final incomes = (data['income'] as List? ?? [])
+          .cast<Map>()
+          .map((e) => IncomeEntry.fromMap(Map<String, Object?>.from(e)))
+          .toList();
+      for (final e in expenses) await _db.addExpense(e);
+      for (final i in incomes) await _db.addIncome(i);
+      if (data['buffer'] is num)
+        await _db.setBuffer((data['buffer'] as num).toDouble());
+      if (data['monthlyBudget'] is num)
+        await setMonthlyBudget((data['monthlyBudget'] as num).toDouble());
+      if (data['categories'] is List) {
+        categories = (data['categories'] as List)
+            .map((e) => e.toString())
+            .toSet()
+            .toList();
+        await _db.setPreference('categories', categories.join('|'));
+      }
+      await load();
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  String exportCsv() {
+    final rows = <List<String>>[
+      ['type', 'amount', 'category', 'date', 'note'],
+      ...incomeList.map(
+        (e) => [
+          'income',
+          e.amount.toStringAsFixed(2),
+          e.category,
+          e.date.toIso8601String(),
+          e.note,
+        ],
+      ),
+    ];
+    String escape(String value) => '"${value.replaceAll('"', '""')}"';
+    return rows.map((r) => r.map(escape).join(',')).join('\n');
+  }
+
   Future<void> load() async {
     expensesList = await _db.expenses();
     incomeList = await _db.incomes();
@@ -31,6 +104,7 @@ class AppState extends ChangeNotifier {
     localeCode = _prefs.getString('localeCode') ?? 'en';
     currencyCode = _prefs.getString('currencyCode') ?? 'USD';
     currencySymbol = _prefs.getString('currencySymbol') ?? '\$';
+    monthlyBudget = _prefs.getDouble('monthlyBudget') ?? 0;
     final storedCategories = await _db.preference('categories');
     if (storedCategories != null && storedCategories.isNotEmpty) {
       categories = storedCategories.split('|');
